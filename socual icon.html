@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotton Farmer Management System</title>
+    <style>
+        :root {
+            --primary-color: #2e7d32;
+            --secondary-color: #4CAF50;
+            --light-green: #e8f5e9;
+            --dark-green: #1b5e20;
+            --error-color: #d32f2f;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        h1, h2, h3 {
+            color: var(--dark-green);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light-green);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
+        }
+        
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background-color: var(--dark-green);
+            transform: translateY(-2px);
+        }
+        
+        button.secondary {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        button.secondary:hover {
+            background-color: #e0e0e0;
+        }
+        
+        button.danger {
+            background-color: var(--error-color);
+        }
+        
+        button.danger:hover {
+            background-color: #b71c1c;
+        }
+        
+        .records-container {
+            margin-top: 40px;
+            background-color: #f9f9f9;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 15px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        
+        tr:hover {
+            background-color: var(--light-green);
+        }
+        
+        .summary-card {
+            background-color: var(--light-green);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .summary-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .summary-item h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+        
+        .summary-item p {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0 0;
+        }
+        
+        .filter-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-controls .form-group {
+            flex: 1;
+            min-width: 200px;
+            margin-bottom: 0;
+        }
+        
+        .collector-management {
+            background-color: #f0f7ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .collector-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .collector-tag {
+            background-color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .collector-tag button {
+            background: none;
+            border: none;
+            color: var(--error-color);
+            padding: 0;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .no-records {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 18px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .summary-card {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cotton Farmer Management System</h1>
+            <!-- Collector Management Section -->
+        <div class="collector-management">
+            <h2>Collector Management</h2>
+            <div class="form-group">
+                <label for="newCollector">Add New Collector:</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="newCollector" placeholder="Enter collector name">
+                    <button onclick="addCollector()">Add Collector</button>
+                </div>
+            </div>
+            
+            <h3>Saved Collectors:</h3>
+            <div class="collector-list" id="collectorList">
+                <!-- Collectors will be added here dynamically -->
+            </div>
+        </div>
+        
+        <!-- Daily Collection Form -->
+        <div class="input-section">
+            <h2>Daily Collection Entry</h2>
+            <form id="collectionForm">
+                <div class="form-group">
+                    <label for="date">Date:</label>
+                    <input type="date" id="date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="collectorName">Collector Name:</label>
+                    <select id="collectorName" required>
+                        <option value="">Select Collector</option>
+                        <!-- Collector options will be added dynamically -->
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="cottonType">Cotton Type:</label>
+                    <select id="cottonType" required>
+                        <option value="">Select Type</option>
+                        <option value="organic">Organic</option>
+                        <option value="hybrid">Hybrid</option>
+                        <option value="bt">BT Cotton</option>
+                        <option value="desi">Desi Cotton</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="quantity">Quantity (kg):</label>
+                    <input type="number" id="quantity" step="0.01" min="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="pricePerKg">Price per kg (Rs):</label>
+                    <input type="number" id="pricePerKg" step="0.01" min="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="notes">Notes:</label>
+                    <textarea id="notes" rows="2"></textarea>
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit">Add Entry</button>
+                    <button type="reset" class="secondary">Clear Form</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Summary Section -->
+        <div class="summary-card">
+            <div class="summary-item">
+                <h3>Today's Collections</h3>
+                <p id="totalCollections">0</p>
+            </div>
+            <div class="summary-item">
+                <h3>Total Quantity</h3>
+                <p id="totalQuantity">0 kg</p>
+            </div>
+            <div class="summary-item">
+                <h3>Total Value</h3>
+                <p id="totalValue">Rs0</p>
+            </div>
+            <div class="summary-item">
+                <h3>Avg. Price/kg</h3>
+                <p id="avgPrice">Rs0</p>
+            </div>
+        </div>
+        
+        <!-- Records Section -->
+        <div class="records-container">
+            <h2>Collection Records</h2>
+            
+            <div class="filter-controls">
+                <div class="form-group">
+                    <label for="searchDate">Filter by Date:</label>
+                    <input type="date" id="searchDate">
+                </div>
+                
+                <div class="form-group">
+                    <label for="searchCollector">Filter by Collector:</label>
+                    <select id="searchCollector">
+                        <option value="">All Collectors</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="searchCottonType">Filter by Type:</label>
+                    <select id="searchCottonType">
+                        <option value="">All Types</option>
+                        <option value="organic">Organic</option>
+                        <option value="hybrid">Hybrid</option>
+                        <option value="bt">BT Cotton</option>
+                        <option value="desi">Desi Cotton</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; align-items: flex-end; gap: 10px;">
+                    <button onclick="filterRecords()">Apply Filters</button>
+                    <button onclick="resetFilter()" class="secondary">Reset</button>
+                    <button onclick="exportToExcel()">Export to Excel</button>
+                </div>
+            </div>
+            
+            <div style="overflow-x: auto;">
+                <table id="recordsTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Collector</th>
+                            <th>Type</th>
+                            <th>Quantity (kg)</th>
+                            <th>Price/kg (Rs)</th>
+                            <th>Total (Rs)</th>
+                            <th>Notes</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Records will be added here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="noRecordsMessage" class="no-records" style="display: none;">
+                No records found. Add your first collection above.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Arrays to store data
+        let collections = [];
+        let collectors = [];
+        
+        // DOM elements
+        const collectionForm = document.getElementById('collectionForm');
+        const collectorNameSelect = document.getElementById('collectorName');
+        const searchCollectorSelect = document.getElementById('searchCollector');
+        const collectorList = document.getElementById('collectorList');
+        const newCollectorInput = document.getElementById('newCollector');
+        
+        // Initialize the application
+        function init() {
+            loadData();
+            setupEventListeners();
+            updateCollectorSelects();
+            renderCollectorList();
+            updateRecordsTable();
+            updateSummary();
+            
+            // Set today's date as default
+            document.getElementById('date').valueAsDate = new Date();
+        }
+        
+        // Load saved data from localStorage
+        function loadData() {
+            if(localStorage.getItem('cottonCollections')) {
+                collections = JSON.parse(localStorage.getItem('cottonCollections'));
+            }
+            
+            if(localStorage.getItem('cottonCollectors')) {
+                collectors = JSON.parse(localStorage.getItem('cottonCollectors'));
+            } else {
+                // Default collectors if none exist
+                collectors = ['Ramesh', 'Suresh', 'Mahesh'];
+                saveCollectors();
+            }
+        }
+        
+        // Save collections to localStorage
+        function saveCollections() {
+            localStorage.setItem('cottonCollections', JSON.stringify(collections));
+        }
+        
+        // Save collectors to localStorage
+        function saveCollectors() {
+            localStorage.setItem('cottonCollectors', JSON.stringify(collectors));
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            collectionForm.addEventListener('submit', handleFormSubmit);
+        }
+        
+        // Handle form submission
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const date = document.getElementById('date').value;
+            const collectorName = document.getElementById('collectorName').value;
+            const cottonType = document.getElementById('cottonType').value;
+            const quantity = parseFloat(document.getElementById('quantity').value);
+            const pricePerKg = parseFloat(document.getElementById('pricePerKg').value);
+            const notes = document.getElementById('notes').value;
+            
+            // Calculate total value
+            const totalValue = quantity * pricePerKg;
+            
+            // Create new collection object
+            const newCollection = {
+                id: Date.now(), // Unique ID for each record
+                date,
+                collectorName,
+                cottonType,
+                quantity,
+                pricePerKg,
+                totalValue,
+                notes,
+                createdAt: new Date().toISOString()
+            };
+            
+            // Add to collections array
+            collections.unshift(newCollection); // Add to beginning of array
+            
+            // Save to localStorage
+            saveCollections();
+            
+            // Update UI
+            updateRecordsTable();
+            updateSummary();
+            
+            // Reset form (but keep price values)
+            collectionForm.reset();
+            document.getElementById('pricePerKg').value = pricePerKg; // Keep price value
+            document.getElementById('date').valueAsDate = new Date(); // Reset to today
+        }
+        
+        // Add a new collector
+        function addCollector() {
+            const name = newCollectorInput.value.trim();
+            if(!name) return;
+            
+            if(!collectors.includes(name)) {
+                collectors.push(name);
+                saveCollectors();
+                updateCollectorSelects();
+                renderCollectorList();
+                newCollectorInput.value = '';
+            } else {
+                alert('This collector already exists!');
+            }
+        }
+        
+        // Delete a collector
+        function deleteCollector(name) {
+            if(confirm(`Delete collector "${name}"? This won't remove their existing records.`)) {
+                collectors = collectors.filter(c => c !== name);
+                saveCollectors();
+                updateCollectorSelects();
+                renderCollectorList();
+            }
+        }
+        // Update collector select inputs
+        function updateCollectorSelects() {
+            // Update collector select in form
+            collectorNameSelect.innerHTML = '<option value="">Select Collector</option>';
+            collectors.forEach(collector => {
+                collectorNameSelect.innerHTML += `<option value="${collector}">${collector}</option>`;
+            });
+            
+            // Update collector select in filter
+            searchCollectorSelect.innerHTML = '<option value="">All Collectors</option>';
+            collectors.forEach(collector => {
+                searchCollectorSelect.innerHTML += `<option value="${collector}">${collector}</option>`;
+            });
+        }
+        
+        // Render collector list
+        function renderCollectorList() {
+            collectorList.innerHTML = '';
+            collectors.forEach(collector => {
+                const tag = document.createElement('div');
+                tag.className = 'collector-tag';
+                tag.innerHTML = `
+                    ${collector}
+                    <button onclick="deleteCollector('${collector}')" title="Delete collector">×</button>
+                `;
+                collectorList.appendChild(tag);
+            });
+        }
+        
+        // Update records table
+        function updateRecordsTable(filteredCollections = null) {
+            const records = filteredCollections || collections;
+            const tbody = document.querySelector('#recordsTable tbody');
+            tbody.innerHTML = '';
+            
+            if(records.length === 0) {
+                document.getElementById('noRecordsMessage').style.display = 'block';
+                return;
+            } else {
+                document.getElementById('noRecordsMessage').style.display = 'none';
+            }
+            
+            records.forEach(collection => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${formatDate(collection.date)}</td>
+                    <td>${collection.collectorName}</td>
+                    <td>${collection.cottonType}</td>
+                    <td>${collection.quantity.toFixed(2)}</td>
+                    <td>Rs${collection.pricePerKg.toFixed(2)}</td>
+                    <td>Rs${collection.totalValue.toFixed(2)}</td>
+                    <td>${collection.notes || '-'}</td>
+                    <td>
+                        <button onclick="deleteRecord(${collection.id})" class="danger">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Update summary section
+        function updateSummary() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayCollections = collections.filter(c => c.date === today);
+            
+            const totalCollections = todayCollections.length;
+            const totalQuantity = todayCollections.reduce((sum, c) => sum + c.quantity, 0);
+            const totalValue = todayCollections.reduce((sum, c) => sum + c.totalValue, 0);
+            const avgPrice = totalQuantity > 0 ? totalValue / totalQuantity : 0;
+            
+            document.getElementById('totalCollections').textContent = totalCollections;
+            document.getElementById('totalQuantity').textContent = `${totalQuantity.toFixed(2)} kg`;
+            document.getElementById('totalValue').textContent = `Rs${totalValue.toFixed(2)}`;
+            document.getElementById('avgPrice').textContent = `Rs${avgPrice.toFixed(2)}`;
+        }
+        
+        // Filter records
+        function filterRecords() {
+            const date = document.getElementById('searchDate').value;
+            const collector = document.getElementById('searchCollector').value;
+            const cottonType = document.getElementById('searchCottonType').value;
+            
+            let filtered = [...collections];
+            
+            if(date) {
+                filtered = filtered.filter(c => c.date === date);
+            }
+            
+            if(collector) {
+                filtered = filtered.filter(c => c.collectorName === collector);
+            }
+            
+            if(cottonType) {
+                filtered = filtered.filter(c => c.cottonType === cottonType);
+            }
+            
+            updateRecordsTable(filtered);
+        }
+        
+        // Reset filters
+        function resetFilter() {
+            document.getElementById('searchDate').value = '';
+            document.getElementById('searchCollector').value = '';
+            document.getElementById('searchCottonType').value = '';
+            updateRecordsTable();
+        }
+        
+        // Delete a record
+        function deleteRecord(id) {
+            if(confirm('Are you sure you want to delete this record?')) {
+                collections = collections.filter(c => c.id !== id);
+                saveCollections();
+                updateRecordsTable();
+                updateSummary();
+            }
+        }
+        
+        // Export to Excel
+        function exportToExcel() {
+            // This is a simplified version - in a real app you might use a library like SheetJS
+            let csv = 'Date,Collector,Type,Quantity (kg),Price/kg (Rs),Total (Rs),Notes\n';
+            
+            collections.forEach(collection => {
+                csv += `"${formatDate(collection.date)}","${collection.collectorName}","${collection.cottonType}",${collection.quantity},${collection.pricePerKg},${collection.totalValue},"${collection.notes || ''}"\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `cotton-collections-${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Format date for display
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        }
+        
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
+
+<html> 
+<!-- Calculator Section -->
+<div class="calculator-section">
+    <h2>Quick Calculator</h2>
+    <div class="calculator">
+        <div class="calculator-display">
+            <div class="equation" id="equationDisplay"></div>
+            <div class="current" id="currentDisplay">0</div>
+        </div>
+        <div class="calculator-keys">
+            <button class="clear">AC</button>
+            <button class="operator">+/-</button>
+            <button class="operator">%</button>
+            <button class="operator">÷</button>
+            <button>7</button>
+            <button>8</button>
+            <button>9</button>
+            <button class="operator">×</button>
+            <button>4</button>
+            <button>5</button>
+            <button>6</button>
+            <button class="operator">-</button>
+            <button>1</button>
+            <button>2</button>
+            <button>3</button>
+            <button class="operator">+</button>
+            <button>0</button>
+            <button>.</button>
+            <button class="equal">=</button>
+        </div>
+    </div>
+</div>
+</html>
+
+<style>
+.calculator-display {
+    background-color: #222;
+    color: white;
+    padding: 15px 20px;
+    text-align: right;
+    font-size: 24px;
+    height: 80px; /* Increased height */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.calculator-display .equation {
+    font-size: 16px;
+    color: rgba(255,255,255,0.7);
+    min-height: 20px;
+    word-wrap: break-word;
+}
+
+.calculator-display .current {
+    font-size: 28px;
+    margin-top: 5px;
+}
+</style>
+<script>
+// Enhanced Calculator Functionality
+const calculator = {
+    displayValue: '0',
+    firstOperand: null,
+    waitingForSecondOperand: false,
+    operator: null,
+    equation: '',
+};
+
+function updateDisplay() {
+    const currentDisplay = document.getElementById('currentDisplay');
+    const equationDisplay = document.getElementById('equationDisplay');
+    
+    currentDisplay.textContent = calculator.displayValue;
+    equationDisplay.textContent = calculator.equation;
+}
+
+function inputDigit(digit) {
+    const { displayValue, waitingForSecondOperand } = calculator;
+    
+    if (waitingForSecondOperand === true) {
+        calculator.displayValue = digit;
+        calculator.waitingForSecondOperand = false;
+    } else {
+        calculator.displayValue = displayValue === '0' ? digit : displayValue + digit;
+    }
+    
+    // Update equation display
+    if (calculator.operator && !calculator.waitingForSecondOperand) {
+        calculator.equation = `${calculator.firstOperand} ${calculator.operator} ${calculator.displayValue}`;
+    }
+    updateDisplay();
+}
+
+function inputDecimal(dot) {
+    if (calculator.waitingForSecondOperand === true) {
+        calculator.displayValue = '0.';
+        calculator.waitingForSecondOperand = false;
+        return;
+    }
+    
+    if (!calculator.displayValue.includes(dot)) {
+        calculator.displayValue += dot;
+    }
+    
+    // Update equation display
+    if (calculator.operator && !calculator.waitingForSecondOperand) {
+        calculator.equation = `${calculator.firstOperand} ${calculator.operator} ${calculator.displayValue}`;
+    }
+    updateDisplay();
+}
+
+function handleOperator(nextOperator) {
+    const { firstOperand, displayValue, operator } = calculator;
+    const inputValue = parseFloat(displayValue);
+    
+    if (operator && calculator.waitingForSecondOperand) {
+        calculator.operator = nextOperator;
+        calculator.equation = `${calculator.firstOperand} ${nextOperator}`;
+        updateDisplay();
+        return;
+    }
+    
+    if (firstOperand == null && !isNaN(inputValue)) {
+        calculator.firstOperand = inputValue;
+    } else if (operator) {
+        const result = calculate(firstOperand, inputValue, operator);
+        calculator.displayValue = `${parseFloat(result.toFixed(7))}`;
+        calculator.firstOperand = result;
+    }
+    
+    calculator.waitingForSecondOperand = true;
+    calculator.operator = nextOperator;
+    calculator.equation = `${calculator.firstOperand} ${nextOperator}`;
+    updateDisplay();
+}
+
+function calculate(firstOperand, secondOperand, operator) {
+    if (operator === '+') {
+        return firstOperand + secondOperand;
+    } else if (operator === '-') {
+        return firstOperand - secondOperand;
+    } else if (operator === '×') {
+        return firstOperand * secondOperand;
+    } else if (operator === '÷') {
+        return firstOperand / secondOperand;
+    } else if (operator === '%') {
+        return firstOperand % secondOperand;
+    }
+    return secondOperand;
+}
+
+function resetCalculator() {
+    calculator.displayValue = '0';
+    calculator.firstOperand = null;
+    calculator.waitingForSecondOperand = false;
+    calculator.operator = null;
+    calculator.equation = '';
+    updateDisplay();
+}
+
+function toggleSign() {
+    calculator.displayValue = calculator.displayValue.startsWith('-') 
+        ? calculator.displayValue.slice(1) 
+        : '-' + calculator.displayValue;
+    
+    // Update equation display if in the middle of operation
+    if (calculator.operator && !calculator.waitingForSecondOperand) {
+        calculator.equation = `${calculator.firstOperand} ${calculator.operator} ${calculator.displayValue}`;
+    }
+    updateDisplay();
+}
+
+function handleEquals() {
+    if (calculator.operator && !calculator.waitingForSecondOperand) {
+        const inputValue = parseFloat(calculator.displayValue);
+        const result = calculate(calculator.firstOperand, inputValue, calculator.operator);
+        
+        // Show full equation before result
+        calculator.equation = `${calculator.firstOperand} ${calculator.operator} ${inputValue} =`;
+        calculator.displayValue = `${parseFloat(result.toFixed(7))}`;
+        
+        calculator.firstOperand = result;
+        calculator.waitingForSecondOperand = true;
+        updateDisplay();
+    }
+}
+
+// Add event listeners
+document.querySelector('.calculator-keys').addEventListener('click', (event) => {
+    const { target } = event;
+    if (!target.matches('button')) return;
+    
+    if (target.classList.contains('operator')) {
+        if (target.textContent === '+/-') {
+            toggleSign();
+            return;
+        }
+        handleOperator(target.textContent);
+        return;
+    }
+    
+    if (target.classList.contains('clear')) {
+        resetCalculator();
+        return;
+    }
+    
+    if (target.classList.contains('equal')) {
+        handleEquals();
+        return;
+    }
+    
+    if (target.textContent === '.') {
+        inputDecimal(target.textContent);
+        return;
+    }
+    
+    inputDigit(target.textContent);
+});
+</script>
